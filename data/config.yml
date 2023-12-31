@@ -1,0 +1,316 @@
+#attampting to get spice to passthrough proxy for PVE
+#tcp:
+#  routers:
+#    spice:
+#      entryPoints: spiceport
+#      rule: HostSNI(`*`)
+#      tls: 
+#        passthrough: true
+#      service: spice
+#  services:
+#    spice:
+#      loadBalancer:
+#        servers:
+#          - address: "192.168.5.100:3128"
+
+
+http:
+ #region routers 
+  routers:
+    dashboard:
+      entryPoints:
+        - "https"
+      rule: "Host(`traf-dash.lab.justalittlerain.dev`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      service: api@internal
+      middlewares: 
+        - auth 
+      tls: {}
+    heimdall:
+      entryPoints:
+        - "https"
+      rule: "Host(`heimdall.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: heimdall
+    external_dashboard:
+      entryPoints:
+        - "https"
+      rule: "Host(`dashboard.lab.justalittlerain.dev`)"
+      middlewares:
+        - authelia
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: external_dashboard
+    proxmoxsnowcloud:
+      entryPoints:
+        - "https"
+      rule: "Host(`snowcloud.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: proxmoxsnowcloud
+    proxmoxsuncloud:
+      entryPoints:
+        - "https"
+      rule: "Host(`suncloud.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: proxmoxsuncloud
+    proxmoxraincloud:
+      entryPoints:
+        - "https"
+      rule: "Host(`raincloud.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: proxmoxraincloud
+    vaultwarden:
+      entryPoints:
+        - "https"
+      rule: "Host(`vaultwarden.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: vaultwarden
+    photoprism:
+      entryPoints:
+        - "https"
+      rule: "Host(`photos.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: photoprism
+    homeAssistant:
+      entryPoints:
+        - "https"
+      rule: "Host(`ha.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: homeAssistant
+    openMediaVault:
+      entryPoints:
+        - "https"
+      rule: "Host(`omv.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: openMediaVault
+    pihole:
+      entryPoints:
+        - "https"
+      rule: "Host(`pihole.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        #- addprefix-pihole
+        - https-redirectscheme
+      tls: {}
+      service: pihole
+    piholeDR:
+      entryPoints:
+        - "https"
+      rule: "Host(`piholedr.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - addprefix-pihole
+        - https-redirectscheme
+      tls: {}
+      service: piholeDR
+    plex:
+      entryPoints:
+        - "https"
+      rule: "Host(`plex.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: plex
+    syncthing:
+      entryPoints:
+        - "https"
+      rule: "Host(`syncthing.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: syncthing  
+    authelia:
+      entryPoints:
+        - "https"
+      rule: "Host(`auth.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: authelia
+    portainer:
+      entryPoints:
+        - "https"
+      rule: "Host(`portainer.lab.justalittlerain.dev`)"
+      middlewares:
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: portainer
+    uptime:
+      entryPoints:
+        - "https"
+      rule: "Host(`uptime.lab.justalittlerain.dev`)"
+      middlewares:
+        - authelia
+        - default-headers
+        - https-redirectscheme
+      tls: {}
+      service: uptime
+
+#endregion
+#region services
+  services:
+    heimdall:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:8888/"
+        passHostHeader: true
+    external_dashboard:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.152:8888/"
+        passHostHeader: true
+    proxmoxsnowcloud:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.5.5:8006/" 
+        passHostHeader: true
+    proxmoxsuncloud:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.5.10:8006/"
+        passHostHeader: true
+    proxmoxraincloud:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.5.100:8006/"
+        passHostHeader: true
+    vaultwarden:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.50.105/"
+        passHostHeader: true
+    photoprism:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:2342/"
+        passHostHeader: true
+    homeAssistant:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.10.169:8123/"
+        passHostHeader: true
+    openMediaVault:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.10.130/"
+        passHostHeader: true
+    pihole:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.104:80/"
+        passHostHeader: true
+    piholeDR:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.10.104:80/"
+        passHostHeader: true
+    plex:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.10.131:32400/"
+        passHostHeader: true
+    syncthing:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:8384/"
+        passHostHeader: true
+    authelia:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.110:9091/"
+        passHostHeader: true
+    portainer:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.50.110:9443"
+        passHostHeader: true
+    uptime:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.50.105:3001"
+        passHostHeader: true
+
+
+#endregion
+  middlewares:
+    authelia:
+      forwardAuth:
+        address: "http://192.168.50.110:9091/api/verify?rd=https://auth.lab.justalittlerain.dev"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "Remote-User"
+          - "Remote-Groups"
+          - "Remote-Email"
+          - "Remote-Name"   
+
+    addprefix-pihole:
+      addPrefix:
+        prefix: "/admin"
+
+    auth:
+      basicAuth:
+        users:
+          - "zadmin:"
+          - "test:"
+
+    https-redirectscheme:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+    default-headers:
+      headers:
+        frameDeny: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+    default-whitelist:
+      ipWhiteList:
+        sourceRange:
+        - "10.0.0.0/8"
+        - "192.168.0.0/16"
+
+    secured:
+      chain:
+        middlewares:
+        - default-whitelist
+        - default-headers
+tls:
+    options:
+        tlsoptions:
+            minVersion: VersionTLS12

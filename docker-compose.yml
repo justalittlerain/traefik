@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - traffic-net
+    ports:
+      - 80:80
+      - 443:443
+      #- 8080:8080
+    environment:
+      - CF_API_EMAIL=
+      #- CF_DNS_API_TOKEN_FILE=/run/secrets/cloudflare_api_key
+      - CF_DNS_API_TOKEN=
+
+    secrets:
+      - cloudflare_api_key
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/zadmin/traefik/data/traefik.yml:/traefik.yml:ro
+      - /home/zadmin/traefik/data/acme.json:/acme.json
+      - /home/zadmin/traefik/data/config.yml:/config.yml:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main=your_domain_here"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.your_domain_here"
+
+secrets:
+  cloudflare_api_key:
+    file: cloudflare_api_key
+
+networks:
+  traffic-net:
+    external: true
